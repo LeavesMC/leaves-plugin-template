@@ -1,0 +1,18 @@
+[versions]
+leavesApi = "1.21.4-R0.1-SNAPSHOT"
+leavesweightUserdev = "2.0.0-SNAPSHOT"
+shadow = "9.0.0-beta12"
+runPaper = "2.3.1"
+resourceFactory = "1.2.0"
+spongeMixin = "0.15.5+mixin.0.8.7"
+
+[libraries]
+# TODO: change this to leaves api
+leavesApi = { group = "io.papermc.paper", name = "paper-api", version.ref = "leavesApi" }
+spongeMixin = { group = "net.fabricmc", name = "sponge-mixin", version.ref = "spongeMixin" }
+
+[plugins]
+leavesweightUserdev = { id = "org.leavesmc.leavesweight.userdev", version.ref = "leavesweightUserdev" }
+shadowJar = { id = "com.gradleup.shadow", version.ref = "shadow" }
+runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runPaper" }
+resourceFactory = { id = "xyz.jpenilla.resource-factory-paper-convention", version.ref = "resourceFactory" }
