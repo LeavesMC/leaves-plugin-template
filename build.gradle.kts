@@ -62,19 +62,20 @@ sourceSets {
 }
 
 dependencies {
-    // TODO: your deps here
+    // TODO: your plugin deps here
 
-    paperweight.paperDevBundle(libs.versions.leavesApi)
+    // api and server source
     compileOnly(libs.leavesApi)
+    paperweight.paperDevBundle(libs.versions.leavesApi)
+
+    // mixins
     compileOnly(sourceSets["mixins"].output)
-    sourceSets["mixins"].compileOnlyConfigurationName(libs.spongeMixin)
-    sourceSets["mixins"].compileOnlyConfigurationName(
-        files(
-            File(rootDir, ".gradle")
-                .resolve("caches/paperweight/taskCache/mappedServerJar.jar")
-                .path
-        )
-    )
+    sourceSets["mixins"].apply {
+        annotationProcessorConfigurationName(libs.mixinExtras)
+        compileOnlyConfigurationName(libs.mixinExtras)
+        compileOnlyConfigurationName(libs.spongeMixin)
+        compileOnlyConfigurationName(files(getMappedServerJar()))
+    }
 }
 
 val mixinsJar = tasks.register<Jar>("mixinsJar") {
@@ -135,6 +136,10 @@ tasks.shadowJar {
 tasks.build {
     error("Please use `shadowJar` task to build the plugin jar")
 }
+
+fun getMappedServerJar(): String = File(rootDir, ".gradle")
+    .resolve("caches/paperweight/taskCache/mappedServerJar.jar")
+    .path
 
 fun Provider<String>.extractApiVersion(): String {
     val versionString = this.get()
