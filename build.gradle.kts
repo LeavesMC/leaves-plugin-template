@@ -1,4 +1,3 @@
-import java.io.FileInputStream
 import java.security.MessageDigest
 
 plugins {
@@ -62,19 +61,26 @@ sourceSets {
 }
 
 dependencies {
-    // TODO: your plugin deps here
+    apply `plugin dependencies`@{
+        // TODO: your plugin deps here
+    }
 
-    // api and server source
-    compileOnly(libs.leavesApi)
-    paperweight.paperDevBundle(libs.versions.leavesApi)
+    apply `api and server source`@{
+        compileOnly(libs.leavesApi)
+        paperweight.paperDevBundle(libs.versions.leavesApi)
+    }
 
-    // mixins
-    compileOnly(sourceSets["mixins"].output)
-    sourceSets["mixins"].apply {
-        annotationProcessorConfigurationName(libs.mixinExtras)
-        compileOnlyConfigurationName(libs.mixinExtras)
-        compileOnlyConfigurationName(libs.spongeMixin)
-        compileOnlyConfigurationName(files(getMappedServerJar()))
+    apply `mixin dependencies`@{
+        compileOnly(sourceSets["mixins"].output)
+        sourceSets["mixins"].apply {
+            val compileOnly = compileOnlyConfigurationName
+            val annotationPreprocessor = annotationProcessorConfigurationName
+
+            annotationPreprocessor(libs.mixinExtras)
+            compileOnly(libs.mixinExtras)
+            compileOnly(libs.spongeMixin)
+            compileOnly(files(getMappedServerJar()))
+        }
     }
 }
 
@@ -150,15 +156,17 @@ fun Provider<String>.extractApiVersion(): String {
 
 fun File.calcMD5(): String {
     val digest = MessageDigest.getInstance("MD5")
-    FileInputStream(this).use { fis ->
+    inputStream().use { fis ->
         val buffer = ByteArray(8192)
         var bytesRead: Int
         while (fis.read(buffer).also { bytesRead = it } != -1) {
             digest.update(buffer, 0, bytesRead)
         }
     }
-    return digest.digest().joinToString("") { "%02x".format(it) }
+    return digest.digest().toHex()
 }
+
+fun ByteArray.toHex() = joinToString("") { "%02x".format(it) }
 
 fun Provider<RegularFile>.extractFileAndMD5File(): Pair<File, File> {
     val file = this.get().asFile
