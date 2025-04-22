@@ -9,7 +9,7 @@ plugins {
 }
 
 // TODO: change this to your plugin group
-group = "org.leavesmc"
+group = "com.example"
 // TODO: change this to your plugin version
 version = "1.0.0-SNAPSHOT"
 
@@ -18,7 +18,7 @@ version = "1.0.0-SNAPSHOT"
 paperPluginYaml {
     name = project.name
     // TODO: change this to your main class
-    main = "org.leavesmc.example.TemplatePlugin"
+    main = "com.example.plugin.TemplatePlugin"
     // TODO: change this to your name
     authors.add("YourName")
     // TODO: change this to your plugin description

@@ -1,4 +1,4 @@
-package org.leavesmc.example.mixins;
+package com.example.plugin.mixins;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8.7",
-  "package": "org.leavesmc.example.mixins",
+  "package": "com.example.plugin.mixins",
   "compatibilityLevel": "JAVA_21",
   "target": "@env(PREINIT)",
   "mixins": [

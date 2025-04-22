@@ -1,4 +1,4 @@
-package org.leavesmc.example;
+package com.example.plugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
