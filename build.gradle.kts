@@ -1,3 +1,5 @@
+import xyz.jpenilla.runtask.service.DownloadsAPIService
+import xyz.jpenilla.runtask.service.DownloadsAPIService.Companion.registerIfAbsent
 import java.security.MessageDigest
 
 plugins {
@@ -26,12 +28,22 @@ paperPluginYaml {
     // TODO: support or not is decided by you
     foliaSupported = false
     version = "${project.version}"
-    apiVersion = libs.versions.leavesApi.extractApiVersion()
+    apiVersion = libs.versions.leavesApi.extractMCVersion()
     // please check https://docs.papermc.io/paper/dev/getting-started/paper-plugins/#dependency-declaration
+    // e.g.
     // dependencies.bootstrap(
     //     name = "some deps",
     //     load = PaperPluginYaml.Load.BEFORE // or AFTER
     // )
+}
+
+val runServerPlugins = runPaper.downloadPluginsSpec {
+    // TODO: add plugins you want when run dev server
+    // e.g.
+    // modrinth("carbon", "2.1.0-beta.21")
+    // github("jpenilla", "MiniMOTD", "v2.0.13", "minimotd-bukkit-2.0.13.jar")
+    // hangar("squaremap", "1.2.0")
+    // url("https://download.luckperms.net/1515/bukkit/loader/LuckPerms-Bukkit-5.4.102.jar")
 }
 
 repositories {
@@ -84,16 +96,61 @@ dependencies {
     }
 }
 
-val mixinsJar = tasks.register<Jar>("mixinsJar") {
-    archiveClassifier.set("mixins")
-    isPreserveFileTimestamps = false
-    isReproducibleFileOrder = true
-    from(sourceSets["mixins"].output)
-    archiveFileName = "${project.name}.mixins.jar"
-    doLast {
-        val (_, mixinsJarMD5File) = archiveFile.extractFileAndMD5File()
-        mixinsJarMD5File.createNewFile()
-        mixinsJarMD5File.writeText(archiveFile.get().asFile.calcMD5())
+tasks {
+    runServer {
+        downloadsApiService.set(leavesDownloadApiService())
+        downloadPlugins.from(runServerPlugins)
+        minecraftVersion(libs.versions.leavesApi.extractMCVersion())
+        systemProperty("file.encoding", Charsets.UTF_8.name())
+    }
+
+    withType<JavaCompile>().configureEach {
+        options.encoding = Charsets.UTF_8.name()
+        options.forkOptions.memoryMaximumSize = "6g"
+
+        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible) {
+            options.release.set(targetJavaVersion)
+        }
+    }
+
+    named<JavaCompile>("compileMixinsJava") {
+        dependsOn("paperweightUserdevSetup")
+    }
+
+    val mixinsJar = register<Jar>("mixinsJar") {
+        archiveClassifier.set("mixins")
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+        from(sourceSets["mixins"].output)
+        archiveFileName = "${project.name}.mixins.jar"
+        doLast {
+            val (_, mixinsJarMD5File) = archiveFile.extractFileAndMD5File()
+            mixinsJarMD5File.createNewFile()
+            mixinsJarMD5File.writeText(archiveFile.get().asFile.calcMD5())
+        }
+    }
+
+    shadowJar {
+        dependsOn(mixinsJar)
+        archiveFileName = "${project.name}-${version}.jar"
+
+        val (mixinsJarFile, mixinsJarMD5File) = mixinsJar.get().archiveFile.extractFileAndMD5File()
+
+        from(mixinsJarFile.path) {
+            into(".")
+        }
+        from(mixinsJarMD5File.path) {
+            into("META-INF")
+        }
+
+        doLast {
+            mixinsJarFile.delete()
+            mixinsJarMD5File.delete()
+        }
+    }
+
+    build {
+        error("Please use `shadowJar` task to build the plugin jar")
     }
 }
 
@@ -107,51 +164,15 @@ java {
     }
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.encoding = Charsets.UTF_8.name()
-    options.forkOptions.memoryMaximumSize = "6g"
-
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible) {
-        options.release.set(targetJavaVersion)
-    }
-}
-
-tasks.named<JavaCompile>("compileMixinsJava") {
-    dependsOn("paperweightUserdevSetup")
-}
-
-tasks.shadowJar {
-    dependsOn(mixinsJar)
-    archiveFileName = "${project.name}-${version}.jar"
-
-    val (mixinsJarFile, mixinsJarMD5File) = mixinsJar.get().archiveFile.extractFileAndMD5File()
-
-    from(mixinsJarFile.path) {
-        into(".")
-    }
-    from(mixinsJarMD5File.path) {
-        into("META-INF")
-    }
-
-    doLast {
-        mixinsJarFile.delete()
-        mixinsJarMD5File.delete()
-    }
-}
-
-tasks.build {
-    error("Please use `shadowJar` task to build the plugin jar")
-}
-
 fun getMappedServerJar(): String = File(rootDir, ".gradle")
     .resolve("caches/paperweight/taskCache/mappedServerJar.jar")
     .path
 
-fun Provider<String>.extractApiVersion(): String {
+fun Provider<String>.extractMCVersion(): String {
     val versionString = this.get()
     val regex = Regex("""^(1\.\d+(?:\.\d+)?)""")
     return regex.find(versionString)?.groupValues?.get(1)
-        ?: throw IllegalArgumentException("Cannot extract apiVersion from $versionString")
+        ?: throw IllegalArgumentException("Cannot extract mcVersion from $versionString")
 }
 
 fun File.calcMD5(): String {
@@ -172,4 +193,10 @@ fun Provider<RegularFile>.extractFileAndMD5File(): Pair<File, File> {
     val file = this.get().asFile
     val md5File = file.parentFile.resolve("${file.name}.md5")
     return file to md5File
+}
+
+fun leavesDownloadApiService(): Provider<out DownloadsAPIService> = registerIfAbsent(project) {
+    downloadsEndpoint = "https://api.leavesmc.org/v2/"
+    downloadProjectName = "leaves"
+    buildServiceName = "leaves-download-service"
 }
