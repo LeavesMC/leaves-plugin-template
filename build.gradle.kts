@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.resourceFactory)
 }
 
-// TODO: change this to your plugin name
+// TODO: change this to your plugin group
 group = "org.leavesmc"
 // TODO: change this to your plugin version
 version = "1.0.0-SNAPSHOT"
