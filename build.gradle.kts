@@ -67,7 +67,7 @@ dependencies {
 
     apply `api and server source`@{
         compileOnly(libs.leavesApi)
-        paperweight.paperDevBundle(libs.versions.leavesApi)
+        paperweight.devBundle(libs.leavesDevBundle)
     }
 
     apply `mixin dependencies`@{
