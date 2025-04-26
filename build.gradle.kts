@@ -30,7 +30,7 @@ paperPluginYaml {
     version = "${project.version}"
     apiVersion = libs.versions.leavesApi.extractMCVersion()
     // please check https://docs.papermc.io/paper/dev/getting-started/paper-plugins/#dependency-declaration
-    // e.g.
+    // e.g.,
     // dependencies.bootstrap(
     //     name = "some deps",
     //     load = PaperPluginYaml.Load.BEFORE // or AFTER
@@ -39,7 +39,7 @@ paperPluginYaml {
 
 val runServerPlugins = runPaper.downloadPluginsSpec {
     // TODO: add plugins you want when run dev server
-    // e.g.
+    // e.g.,
     // modrinth("carbon", "2.1.0-beta.21")
     // github("jpenilla", "MiniMOTD", "v2.0.13", "minimotd-bukkit-2.0.13.jar")
     // hangar("squaremap", "1.2.0")
