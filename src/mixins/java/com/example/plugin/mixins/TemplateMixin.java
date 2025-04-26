@@ -8,6 +8,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
 @Mixin(Main.class)
 public final class TemplateMixin {
     @Inject(method = "main", at = @At("HEAD"))
@@ -20,6 +22,8 @@ public final class TemplateMixin {
     private static void wrapMain(String[] args, Operation<Void> original) {
         System.err.println("This is a template mixin. boot args: " + String.join(", ", args));
         System.err.println("PLEASE REMOVE THIS MIXIN AND REPLACE IT WITH YOUR OWN!");
+        List<String> listArgs = Main.asList(args);
+        System.err.println("Parse args with access widener: " + listArgs);
         original.call((Object) args);
     }
 }

@@ -6,6 +6,7 @@ runPaper = "2.3.1"
 resourceFactory = "1.2.0"
 spongeMixin = "0.15.5+mixin.0.8.7"
 mixinExtras = "0.4.1"
+accessWiden = "1.0.0"
 
 [libraries]
 leavesApi = { group = "org.leavesmc.leaves", name = "leaves-api", version.ref = "leavesApi" }
@@ -18,3 +19,4 @@ leavesweightUserdev = { id = "org.leavesmc.leavesweight.userdev", version.ref = 
 shadowJar = { id = "com.gradleup.shadow", version.ref = "shadow" }
 runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runPaper" }
 resourceFactory = { id = "xyz.jpenilla.resource-factory-paper-convention", version.ref = "resourceFactory" }
+accessWiden = { id = "io.github.gliczdev.access-widen", version.ref = "accessWiden" }

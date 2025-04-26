@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.shadowJar)
     alias(libs.plugins.runPaper)
     alias(libs.plugins.resourceFactory)
+    alias(libs.plugins.accessWiden)
 }
 
 // TODO: change this to your plugin group
@@ -71,6 +72,7 @@ sourceSets {
         resources.srcDir("mixins/resources")
     }
 }
+val mixinSourceSet: SourceSet = sourceSets["mixins"]
 
 dependencies {
     apply `plugin dependencies`@{
@@ -83,17 +85,23 @@ dependencies {
     }
 
     apply `mixin dependencies`@{
-        compileOnly(sourceSets["mixins"].output)
-        sourceSets["mixins"].apply {
+        compileOnly(mixinSourceSet.output)
+        mixinSourceSet.apply {
             val compileOnly = compileOnlyConfigurationName
             val annotationPreprocessor = annotationProcessorConfigurationName
 
             annotationPreprocessor(libs.mixinExtras)
             compileOnly(libs.mixinExtras)
             compileOnly(libs.spongeMixin)
-            compileOnly(files(getMappedServerJar()))
+            accessWiden(compileOnly(files(getMappedServerJar()))!!)
         }
     }
+}
+
+accessWideners {
+    files.from(fileTree(mixinSourceSet.resources.srcDirs.first()) {
+        include("*.accesswidener")
+    })
 }
 
 tasks {
@@ -115,19 +123,24 @@ tasks {
 
     named<JavaCompile>("compileMixinsJava") {
         dependsOn("paperweightUserdevSetup")
+        dependsOn(applyAccessWideners)
     }
 
     val mixinsJar = register<Jar>("mixinsJar") {
         archiveClassifier.set("mixins")
         isPreserveFileTimestamps = false
         isReproducibleFileOrder = true
-        from(sourceSets["mixins"].output)
+        from(mixinSourceSet.output)
         archiveFileName = "${project.name}.mixins.jar"
         doLast {
             val (_, mixinsJarMD5File) = archiveFile.extractFileAndMD5File()
             mixinsJarMD5File.createNewFile()
             mixinsJarMD5File.writeText(archiveFile.get().asFile.calcMD5())
         }
+    }
+
+    paperweightUserdevSetup {
+        finalizedBy(applyAccessWideners)
     }
 
     shadowJar {
