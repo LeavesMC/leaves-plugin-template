@@ -18,5 +18,5 @@ mixinExtras = { group = "io.github.llamalad7", name = "mixinextras-common", vers
 leavesweightUserdev = { id = "org.leavesmc.leavesweight.userdev", version.ref = "leavesweightUserdev" }
 shadowJar = { id = "com.gradleup.shadow", version.ref = "shadow" }
 runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runPaper" }
-resourceFactory = { id = "xyz.jpenilla.resource-factory-paper-convention", version.ref = "resourceFactory" }
+resourceFactory = { id = "xyz.jpenilla.resource-factory", version.ref = "resourceFactory" }
 accessWiden = { id = "io.github.gliczdev.access-widen", version.ref = "accessWiden" }

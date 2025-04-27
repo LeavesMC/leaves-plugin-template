@@ -1,3 +1,11 @@
+@file:Suppress("SpellCheckingInspection")
+
+import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import xyz.jpenilla.resourcefactory.ConfigurateSingleFileResourceFactory
+import xyz.jpenilla.resourcefactory.ResourceFactory
+import xyz.jpenilla.resourcefactory.ResourceFactoryConventionPlugin
+import xyz.jpenilla.resourcefactory.bukkit.Permission
+import xyz.jpenilla.resourcefactory.util.*
 import xyz.jpenilla.runtask.service.DownloadsAPIService
 import xyz.jpenilla.runtask.service.DownloadsAPIService.Companion.registerIfAbsent
 import java.security.MessageDigest
@@ -18,8 +26,8 @@ version = "1.0.0-SNAPSHOT"
 
 // please check https://docs.papermc.io/paper/dev/plugin-yml/
 // and https://docs.papermc.io/paper/dev/getting-started/paper-plugins/
-paperPluginYaml {
-    name = project.name
+val pluginJson = leavesPluginJson {
+    // INFO: name and version defaults to project name and version
     // TODO: change this to your main class
     main = "com.example.plugin.TemplatePlugin"
     // TODO: change this to your name
@@ -28,13 +36,12 @@ paperPluginYaml {
     description = "leaves template plugin"
     // TODO: support or not is decided by you
     foliaSupported = false
-    version = "${project.version}"
     apiVersion = libs.versions.leavesApi.extractMCVersion()
     // please check https://docs.papermc.io/paper/dev/getting-started/paper-plugins/#dependency-declaration
     // e.g.,
     // dependencies.bootstrap(
     //     name = "some deps",
-    //     load = PaperPluginYaml.Load.BEFORE // or AFTER
+    //     load = LeavesPluginJson.Load.BEFORE // or AFTER
     // )
 }
 
@@ -70,6 +77,12 @@ sourceSets {
     create("mixins") {
         java.srcDir("mixins/java")
         resources.srcDir("mixins/resources")
+    }
+
+    main {
+        resourceFactory {
+            factories(pluginJson.resourceFactory())
+        }
     }
 }
 val mixinSourceSet: SourceSet = sourceSets["mixins"]
@@ -213,3 +226,257 @@ fun leavesDownloadApiService(): Provider<out DownloadsAPIService> = registerIfAb
     downloadProjectName = "leaves"
     buildServiceName = "leaves-download-service"
 }
+
+// The codes below is under Apache License 2.0
+// original repo is https://github.com/jpenilla/resource-factory
+//
+// Resource Factory Gradle Plugin
+// Copyright (c) 2024 Jason Penilla
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+fun Project.leavesPluginJson(configure: Action<LeavesPluginJson> = nullAction()): LeavesPluginJson {
+    val json = LeavesPluginJson(objects)
+    json.setConventionsFromProjectMeta(this)
+    configure.execute(json)
+    return json
+}
+
+@Suppress("unused")
+class LeavesPluginJson(
+    @Transient
+    private val objects: ObjectFactory
+) : ConfigurateSingleFileResourceFactory.Simple.ValueProvider, ProjectMetaConventions, ResourceFactory.Provider {
+    companion object {
+        private const val PLUGIN_NAME_PATTERN: String = "^[A-Za-z0-9_\\.-]+$"
+        private const val PLUGIN_CLASS_PATTERN: String =
+            "^(?!io\\.papermc\\.)([a-zA-Z_$][a-zA-Z\\d_$]*\\.)*[a-zA-Z_$][a-zA-Z\\d_$]*$"
+        private const val FILE_NAME: String = "leaves-plugin.json"
+    }
+
+    @get:Input
+    val apiVersion: Property<String> = objects.property()
+
+    @Pattern(PLUGIN_NAME_PATTERN, "Paper plugin name")
+    @get:Input
+    val name: Property<String> = objects.property()
+
+    @get:Input
+    val version: Property<String> = objects.property()
+
+    @Pattern(PLUGIN_CLASS_PATTERN, "Leaves plugin main class name")
+    @get:Input
+    val main: Property<String> = objects.property()
+
+    @Pattern(PLUGIN_CLASS_PATTERN, "Leaves plugin loader class name")
+    @get:Input
+    @get:Optional
+    val loader: Property<String> = objects.property()
+
+    @Pattern(PLUGIN_CLASS_PATTERN, "Leaves plugin bootstrapper class name")
+    @get:Input
+    @get:Optional
+    val bootstrapper: Property<String> = objects.property()
+
+    @get:Input
+    @get:Optional
+    val description: Property<String> = objects.property()
+
+    @get:Input
+    @get:Optional
+    val author: Property<String> = objects.property()
+
+    @get:Input
+    @get:Optional
+    val authors: ListProperty<String> = objects.listProperty()
+
+    @get:Input
+    @get:Optional
+    val contributors: ListProperty<String> = objects.listProperty()
+
+    @get:Input
+    @get:Optional
+    val website: Property<String> = objects.property()
+
+    @get:Input
+    @get:Optional
+    val prefix: Property<String> = objects.property()
+
+    @get:Input
+    @get:Optional
+    val defaultPermission: Property<Permission.Default> = objects.property()
+
+    @get:Input
+    @get:Optional
+    val foliaSupported: Property<Boolean> = objects.property()
+
+    @get:Nested
+    var dependencies: Dependencies = objects.newInstance(Dependencies::class)
+
+    @get:Input
+    @get:Optional
+    @Pattern(PLUGIN_NAME_PATTERN, "Leaves plugin name (of provides)")
+    val provides: ListProperty<String> = objects.listProperty()
+
+    @get:Nested
+    val permissions: NamedDomainObjectContainer<Permission> =
+        objects.domainObjectContainer(Permission::class) { Permission(objects, it) }
+
+    fun dependencies(configure: Action<Dependencies>) {
+        configure.execute(dependencies)
+    }
+
+    override fun setConventionsFromProjectMeta(project: Project) {
+        name.convention(project.name)
+        version.convention(project.version as String?)
+        description.convention(project.description)
+    }
+
+    enum class Load {
+        BEFORE,
+        AFTER,
+        OMIT
+    }
+
+    abstract class Dependencies @Inject constructor(objects: ObjectFactory) {
+        @get:Nested
+        val bootstrap: NamedDomainObjectContainer<Dependency> =
+            objects.domainObjectContainer(Dependency::class) { Dependency(objects, it) }
+
+        @get:Nested
+        val server: NamedDomainObjectContainer<Dependency> =
+            objects.domainObjectContainer(Dependency::class) { Dependency(objects, it) }
+
+        fun bootstrap(
+            name: String,
+            load: Load = Load.OMIT,
+            required: Boolean = true,
+            joinClasspath: Boolean = true
+        ): NamedDomainObjectProvider<Dependency> = bootstrap.register(name) {
+            this.load.set(load)
+            this.required.set(required)
+            this.joinClasspath.set(joinClasspath)
+        }
+
+        fun server(
+            name: String,
+            load: Load = Load.OMIT,
+            required: Boolean = true,
+            joinClasspath: Boolean = true
+        ): NamedDomainObjectProvider<Dependency> = server.register(name) {
+            this.load.set(load)
+            this.required.set(required)
+            this.joinClasspath.set(joinClasspath)
+        }
+    }
+
+    class Dependency(
+        objects: ObjectFactory,
+        @get:Input
+        val name: String
+    ) {
+        @get:Input
+        val load: Property<Load> = objects.property<Load>().convention(Load.OMIT)
+
+        @get:Input
+        val required: Property<Boolean> = objects.property<Boolean>().convention(true)
+
+        @get:Input
+        val joinClasspath: Property<Boolean> = objects.property<Boolean>().convention(true)
+    }
+
+    override fun resourceFactory(): ResourceFactory {
+        val gen = objects.newInstance(ConfigurateSingleFileResourceFactory.Simple::class)
+        gen.json {
+            defaultOptions {
+                it.serializers { s ->
+                    s.registerExact(Permission.Default::class.java, Permission.Default.Serializer)
+                }
+            }
+        }
+        gen.path.set(FILE_NAME)
+        gen.value.set(this)
+        return gen
+    }
+
+    override fun asConfigSerializable(): Any {
+        return Serializable(this)
+    }
+
+    @ConfigSerializable
+    class Serializable(json: LeavesPluginJson) {
+        val apiVersion = json.apiVersion.get()
+        val name = json::name.getValidating()
+        val version = json.version.get()
+        val main = json::main.getValidating()
+        val loader = json::loader.orNullValidating()
+        val bootstrapper = json::bootstrapper.orNullValidating()
+        val description = json.description.orNull
+        val author = json.author.orNull
+        val authors = json.authors.nullIfEmpty()
+        val contributors = json.contributors.nullIfEmpty()
+        val website = json.website.orNull
+        val prefix = json.prefix.orNull
+        val defaultPermission = json.defaultPermission.orNull
+        val foliaSupported = json.foliaSupported.orNull
+        val dependencies = SerializableDependencies.from(json.dependencies)
+        val provides = json::provides.nullIfEmptyValidating()
+        val permissions = json.permissions.nullIfEmpty()?.mapValues { Permission.Serializable(it.value) }
+    }
+
+    @ConfigSerializable
+    data class SerializableDependency(val load: Load, val required: Boolean, val joinClasspath: Boolean) {
+        companion object {
+            fun from(dep: Dependency) = SerializableDependency(
+                dep.load.get(),
+                dep.required.get(),
+                dep.joinClasspath.get()
+            )
+        }
+    }
+
+    @ConfigSerializable
+    data class SerializableDependencies(
+        val bootstrap: Map<String, SerializableDependency>?,
+        val server: Map<String, SerializableDependency>?
+    ) {
+        companion object {
+            fun from(deps: Dependencies): SerializableDependencies? {
+                val bs = deps.bootstrap.nullIfEmpty()?.mapValues { SerializableDependency.from(it.value) }
+                    .also {
+                        it?.keys?.validateAll(
+                            PLUGIN_NAME_PATTERN,
+                            "Leaves plugin name (of bootstrap dependency)"
+                        )
+                    }
+                val server = deps.server.nullIfEmpty()?.mapValues { SerializableDependency.from(it.value) }
+                    .also {
+                        it?.keys?.validateAll(
+                            PLUGIN_NAME_PATTERN,
+                            "Leaves plugin name (of server dependency)"
+                        )
+                    }
+                if (bs == null && server == null) {
+                    return null
+                }
+                return SerializableDependencies(bs, server)
+            }
+        }
+    }
+}
+
+@Suppress("unused")
+abstract class LeavesConvention : ResourceFactoryConventionPlugin.Provider<LeavesPluginJson>(
+    "leavesPluginJson",
+    { project -> project.leavesPluginJson() }
+)
