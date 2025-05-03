@@ -1,4 +1,4 @@
-package com.example.plugin.mixins;
+package com.example.plugin.mixin.mixins;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

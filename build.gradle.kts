@@ -8,7 +8,6 @@ import xyz.jpenilla.resourcefactory.bukkit.Permission
 import xyz.jpenilla.resourcefactory.util.*
 import xyz.jpenilla.runtask.service.DownloadsAPIService
 import xyz.jpenilla.runtask.service.DownloadsAPIService.Companion.registerIfAbsent
-import java.security.MessageDigest
 
 plugins {
     java
@@ -37,6 +36,13 @@ val pluginJson = leavesPluginJson {
     // TODO: support or not is decided by you
     foliaSupported = false
     apiVersion = libs.versions.leavesApi.extractMCVersion()
+    // TODO: if your logic can work without mixin, can use `features.optional.add("mixin")`
+    features.required.add("mixin")
+    mixin.apply {
+        packageName = "com.example.plugin.mixin"
+        accessWidener = "leaves-template-plugin.accesswidener"
+        mixins.add("leaves-template-plugin.mixins.json")
+    }
     // please check https://docs.papermc.io/paper/dev/getting-started/paper-plugins/#dependency-declaration
     // e.g.,
     // dependencies.bootstrap(
@@ -74,9 +80,9 @@ repositories {
 }
 
 sourceSets {
-    create("mixins") {
-        java.srcDir("mixins/java")
-        resources.srcDir("mixins/resources")
+    create("mixin") {
+        java.srcDir("mixin/java")
+        resources.srcDir("mixin/resources")
     }
 
     main {
@@ -85,7 +91,7 @@ sourceSets {
         }
     }
 }
-val mixinSourceSet: SourceSet = sourceSets["mixins"]
+val mixinSourceSet: SourceSet = sourceSets["mixin"]
 
 dependencies {
     apply `plugin dependencies`@{
@@ -134,22 +140,9 @@ tasks {
         }
     }
 
-    named<JavaCompile>("compileMixinsJava") {
+    named<JavaCompile>("compileMixinJava") {
         dependsOn("paperweightUserdevSetup")
         dependsOn(applyAccessWideners)
-    }
-
-    val mixinsJar = register<Jar>("mixinsJar") {
-        archiveClassifier.set("mixins")
-        isPreserveFileTimestamps = false
-        isReproducibleFileOrder = true
-        from(mixinSourceSet.output)
-        archiveFileName = "${project.name}.mixins.jar"
-        doLast {
-            val (_, mixinsJarMD5File) = archiveFile.extractFileAndMD5File()
-            mixinsJarMD5File.createNewFile()
-            mixinsJarMD5File.writeText(archiveFile.get().asFile.calcMD5())
-        }
     }
 
     paperweightUserdevSetup {
@@ -157,26 +150,12 @@ tasks {
     }
 
     shadowJar {
-        dependsOn(mixinsJar)
+        from(mixinSourceSet.output)
         archiveFileName = "${project.name}-${version}.jar"
-
-        val (mixinsJarFile, mixinsJarMD5File) = mixinsJar.get().archiveFile.extractFileAndMD5File()
-
-        from(mixinsJarFile.path) {
-            into(".")
-        }
-        from(mixinsJarMD5File.path) {
-            into("META-INF")
-        }
-
-        doLast {
-            mixinsJarFile.delete()
-            mixinsJarMD5File.delete()
-        }
     }
 
     build {
-        error("Please use `shadowJar` task to build the plugin jar")
+        dependsOn(shadowJar)
     }
 }
 
@@ -199,26 +178,6 @@ fun Provider<String>.extractMCVersion(): String {
     val regex = Regex("""^(1\.\d+(?:\.\d+)?)""")
     return regex.find(versionString)?.groupValues?.get(1)
         ?: throw IllegalArgumentException("Cannot extract mcVersion from $versionString")
-}
-
-fun File.calcMD5(): String {
-    val digest = MessageDigest.getInstance("MD5")
-    inputStream().use { fis ->
-        val buffer = ByteArray(8192)
-        var bytesRead: Int
-        while (fis.read(buffer).also { bytesRead = it } != -1) {
-            digest.update(buffer, 0, bytesRead)
-        }
-    }
-    return digest.digest().toHex()
-}
-
-fun ByteArray.toHex() = joinToString("") { "%02x".format(it) }
-
-fun Provider<RegularFile>.extractFileAndMD5File(): Pair<File, File> {
-    val file = this.get().asFile
-    val md5File = file.parentFile.resolve("${file.name}.md5")
-    return file to md5File
 }
 
 fun leavesDownloadApiService(): Provider<out DownloadsAPIService> = registerIfAbsent(project) {
@@ -323,6 +282,12 @@ class LeavesPluginJson(
     @get:Nested
     var dependencies: Dependencies = objects.newInstance(Dependencies::class)
 
+    @get:Nested
+    val features: Features = objects.newInstance(Features::class)
+
+    @get:Nested
+    val mixin: Mixin = objects.newInstance(Mixin::class)
+
     @get:Input
     @get:Optional
     @Pattern(PLUGIN_NAME_PATTERN, "Leaves plugin name (of provides)")
@@ -395,6 +360,30 @@ class LeavesPluginJson(
         val joinClasspath: Property<Boolean> = objects.property<Boolean>().convention(true)
     }
 
+    abstract class Features @Inject constructor(objects: ObjectFactory) {
+        @get:Input
+        @get:Optional
+        val required: ListProperty<String> = objects.listProperty()
+
+        @get:Input
+        @get:Optional
+        val optional: ListProperty<String> = objects.listProperty()
+    }
+
+    abstract class Mixin @Inject constructor(objects: ObjectFactory) {
+        @get:Input
+        @get:Optional
+        val packageName: Property<String> = objects.property()
+
+        @get:Input
+        @get:Optional
+        val mixins: ListProperty<String> = objects.listProperty()
+
+        @get:Input
+        @get:Optional
+        val accessWidener: Property<String> = objects.property()
+    }
+
     override fun resourceFactory(): ResourceFactory {
         val gen = objects.newInstance(ConfigurateSingleFileResourceFactory.Simple::class)
         gen.json {
@@ -430,8 +419,44 @@ class LeavesPluginJson(
         val defaultPermission = json.defaultPermission.orNull
         val foliaSupported = json.foliaSupported.orNull
         val dependencies = SerializableDependencies.from(json.dependencies)
+        val features = SerializableFeatures.from(json.features)
+        val mixin = SerializableMixin.from(json.mixin)
         val provides = json::provides.nullIfEmptyValidating()
         val permissions = json.permissions.nullIfEmpty()?.mapValues { Permission.Serializable(it.value) }
+    }
+
+    @ConfigSerializable
+    data class SerializableFeatures(
+        val required: List<String>?,
+        val optional: List<String>?
+    ) {
+        companion object {
+            fun from(features: Features): SerializableFeatures? {
+                val required = features.required.nullIfEmpty()
+                val optional = features.optional.nullIfEmpty()
+                if (required == null && optional == null) {
+                    return null
+                }
+                return SerializableFeatures(required, optional)
+            }
+        }
+    }
+
+    @ConfigSerializable
+    data class SerializableMixin(
+        val packageName: String?,
+        val mixins: List<String>?,
+        val accessWidener: String?
+    ) {
+        companion object {
+            fun from(mixin: Mixin): SerializableMixin {
+                return SerializableMixin(
+                    mixin.packageName.orNull,
+                    mixin.mixins.nullIfEmpty(),
+                    mixin.accessWidener.orNull
+                )
+            }
+        }
     }
 
     @ConfigSerializable

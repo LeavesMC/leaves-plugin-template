@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8.7",
-  "package": "com.example.plugin.mixins",
+  "package": "com.example.plugin.mixin.mixins",
   "compatibilityLevel": "JAVA_21",
   "target": "@env(PREINIT)",
   "mixins": [
