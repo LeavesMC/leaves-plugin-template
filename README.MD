@@ -4,7 +4,7 @@
 
 快速创建 Leaves 插件的开发模板。
 
-** :warning: 目前仅支持 [Gradle](https://gradle.org/)。**
+**:warning: 目前仅支持 [Gradle](https://gradle.org/)。**
 
 ## 特性
 
