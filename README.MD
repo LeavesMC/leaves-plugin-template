@@ -1,4 +1,4 @@
-# leaves-plugin-template
+# Leaves Plugin Template
 
 [![许可证](https://img.shields.io/github/license/LeavesMC/leaves-plugin-template)](LICENSE)
 
@@ -8,13 +8,13 @@ Leaves Plugin 的开发模板。
 
 ## 特性
 
-- 构建脚本中声明插件 Meta 文件
+- 构建脚本中声明插件元数据
 - 支持 Mixin，Mixin Extra，AccessWidener
 - 支持一键启动开发服务器
 
 ## 前提条件
 
-为了使用此模板，你需要拥有Gradle，JDK21或更高版本。如果你使用 IntelliJ IDEA，那么它会帮你安装这些。
+为了使用此模板，你需要拥有一个可用的 JDK 21 或更高版本
 
 ## 快速开始
 
@@ -44,7 +44,11 @@ Leaves Plugin 的开发模板。
 
 5. **部署插件：**
 
-   将生成的 `.jar` 文件放入 Leaves 服务器的 `plugins` 文件夹，并重启服务器。
+   将生成的 `.jar` 文件放入支持 Leaves Plugin 的服务器的 `plugins` 文件夹，并重启服务器。
+ 
+## 为什么 Mixin 不起作用？
+
+Leavesclip 默认禁用了 Mixin 功能。你需要在服务器启动脚本中加入 `-Dleavesclip.enable.mixin=true`
 
 ## 贡献
 
