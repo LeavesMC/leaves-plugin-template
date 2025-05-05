@@ -48,6 +48,10 @@
 
 ## 常见问题
 
+**用这个模板生成的插件能在哪些服务端中使用？**
+
+目前只有 [Leaves](https://github.com/LeavesMC/Leaves)
+
 **什么是 Mixin？**
 
 参考 [Fabric 教程：Mixin 介绍](https://wiki.fabricmc.net/zh_cn:tutorial:mixin_introduction)
