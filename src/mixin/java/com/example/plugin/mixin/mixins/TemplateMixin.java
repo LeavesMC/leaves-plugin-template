@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
+// TODO: remove this. this is only for example
 @Mixin(Main.class)
 public final class TemplateMixin {
     @Inject(method = "main", at = @At("HEAD"))

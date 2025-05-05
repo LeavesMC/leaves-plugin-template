@@ -2,6 +2,7 @@ package com.example.plugin;
 
 import com.example.plugin.mixin.Bridge;
 
+// TODO: remove or change this. this is only for example
 public class MyBridge implements Bridge {
     @Override
     public void interact(String msg) {

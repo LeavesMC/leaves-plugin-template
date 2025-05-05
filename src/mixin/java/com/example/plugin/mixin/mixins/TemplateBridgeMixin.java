@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+// TODO: remove this. this is only for example
 @Mixin(MinecraftServer.class)
 public abstract class TemplateBridgeMixin {
     @Inject(
