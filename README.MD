@@ -2,9 +2,9 @@
 
 [![许可证](https://img.shields.io/github/license/LeavesMC/leaves-plugin-template)](LICENSE)
 
-快速创建 Leaves 插件的开发模板
+一个帮助你快速开始 Leaves 插件开发的项目模板
 
-**:warning: 目前仅支持 [Gradle](https://gradle.org/)**
+**:warning: 当前仅支持 [Gradle](https://gradle.org/)**
 
 ## 特性
 
@@ -24,10 +24,9 @@
    git clone https://github.com/LeavesMC/leaves-plugin-template.git
    ```
 
-2. **修改项目**
+2. **配置项目**
 
-   完成项目中的所有 `// TODO`， 修改 `src/mixin/resources` 中的 `leaves-template-plugin.accesswidener` 与 
-   `leaves-template-plugin.mixins.json`，使其符合你的项目需求
+   按照项目中的 `// TODO` 注释完成对应内容，并根据你的插件需求修改 `src/mixin/resources` 下的 `leaves-template-plugin.accesswidener` 与 `leaves-template-plugin.mixins.json` 文件
 
 3. **编写插件 ：**
 
@@ -48,7 +47,7 @@
 
 ## 常见问题
 
-**用这个模板开发的插件能在哪些服务端中使用？**
+**用此模板开发的插件可以用于哪些服务端？**
 
 目前只有 [Leaves](https://github.com/LeavesMC/Leaves)
 
@@ -60,7 +59,7 @@
 
 参考 [GitHub：Mixin Extras](https://github.com/LlamaLad7/MixinExtras)
 
-我们已经为你配置好了 Mixin Extras，你无须手动配置
+（本模板已配置，无需额外操作）
 
 **什么是 AccessWidener？**
 
@@ -70,12 +69,12 @@
 
 Leavesclip 默认禁用了 Mixin 功能。你需要在服务器启动脚本中加入 `-Dleavesclip.enable.mixin=true`
 
-开发服务器中已经默认启用 Mixin
+模板中附带的开发服务器已默认启用 Mixin，无需额外设置。
 
 ## 贡献
 
-欢迎通过 Issue 或 Pull Request 参与贡献！
+欢迎通过 Issue 或 Pull Request 提交你的建议或改进！
 
 ## 许可证
 
-本项目在 [MIT License](LICENSE) 下发布。
+本项目遵循 [MIT License](LICENSE) 开源协议。
