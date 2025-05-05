@@ -2,9 +2,9 @@
 
 [![许可证](https://img.shields.io/github/license/LeavesMC/leaves-plugin-template)](LICENSE)
 
-快速创建 Leaves 插件的开发模板。
+快速创建 Leaves 插件的开发模板
 
-**:warning: 目前仅支持 [Gradle](https://gradle.org/)。**
+**:warning: 目前仅支持 [Gradle](https://gradle.org/)**
 
 ## 特性
 
@@ -14,7 +14,7 @@
 
 ## 依赖
 
-此模板需要 JDK 21 或更高版本。
+此模板需要 JDK 21 或更高版本
 
 ## 快速开始
 
