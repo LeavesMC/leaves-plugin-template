@@ -8,9 +8,9 @@
 
 ## 特性
 
-- 支持在构建脚本中声明插件元数据
-- 支持 [Mixin](https://github.com/FabricMC/Mixin)，[Mixin Extras](https://github.com/LlamaLad7/MixinExtras)，[AccessWidener](https://github.com/FabricMC/access-widener)
-- 支持快速启动开发服务器
+- 在构建脚本中声明插件元数据
+- 开箱即用的 [Mixin](https://github.com/FabricMC/Mixin)，[Mixin Extras](https://github.com/LlamaLad7/MixinExtras)，[AccessWidener](https://github.com/FabricMC/access-widener)
+- 快速启动开发服务器
 
 ## 依赖
 
@@ -55,6 +55,8 @@
 **什么是 Mixin Extras？**
 
 参考 [GitHub：Mixin Extras](https://github.com/LlamaLad7/MixinExtras)
+
+我们已经为你配置好了 Mixin Extras，你无须手动配置
 
 **什么是 AccessWidener？**
 
