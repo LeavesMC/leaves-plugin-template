@@ -128,6 +128,7 @@ tasks {
         downloadsApiService.set(leavesDownloadApiService())
         downloadPlugins.from(runServerPlugins)
         minecraftVersion(libs.versions.leavesApi.extractMCVersion())
+        systemProperty("leavesclip.enable.mixin", true)
         systemProperty("file.encoding", Charsets.UTF_8.name())
     }
 

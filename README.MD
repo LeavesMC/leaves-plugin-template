@@ -60,6 +60,8 @@
 
 Leavesclip 默认禁用了 Mixin 功能。你需要在服务器启动脚本中加入 `-Dleavesclip.enable.mixin=true`
 
+开发服务器中已经默认启用 Mixin
+
 ## 贡献
 
 欢迎通过 Issue 或 Pull Request 参与贡献！
