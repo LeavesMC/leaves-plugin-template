@@ -52,6 +52,10 @@
 
 参考 [Fabric 教程：Mixin 介绍](https://wiki.fabricmc.net/zh_cn:tutorial:mixin_introduction)
 
+**什么是 Mixin Extras？**
+
+参考 [GitHub：Mixin Extras](https://github.com/LlamaLad7/MixinExtras)
+
 **什么是 AccessWidener？**
 
 参考 [Fabric 教程：访问加宽器](https://wiki.fabricmc.net/zh_cn:tutorial:accesswideners)
