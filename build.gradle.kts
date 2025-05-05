@@ -23,8 +23,7 @@ group = "com.example"
 // TODO: change this to your plugin version
 version = "1.0.0-SNAPSHOT"
 
-// please check https://docs.papermc.io/paper/dev/plugin-yml/
-// and https://docs.papermc.io/paper/dev/getting-started/paper-plugins/
+// please check https://docs.papermc.io/paper/dev/plugin-yml/ and https://docs.papermc.io/paper/dev/getting-started/paper-plugins/
 val pluginJson = leavesPluginJson {
     // INFO: name and version defaults to project name and version
     // TODO: change this to your main class
@@ -39,10 +38,14 @@ val pluginJson = leavesPluginJson {
     // TODO: if your logic can work without mixin, can use `features.optional.add("mixin")`
     features.required.add("mixin")
     mixin.apply {
+        // TODO: replace this to your mixin package name
         packageName = "com.example.plugin.mixin"
+        // TODO: replace this to your access widener file name
         accessWidener = "leaves-template-plugin.accesswidener"
+        // TODO: replace this to your mixin configs name
         mixins.add("leaves-template-plugin.mixins.json")
     }
+    // TODO: add your plugin dependencies
     // please check https://docs.papermc.io/paper/dev/getting-started/paper-plugins/#dependency-declaration
     // e.g.,
     // dependencies.bootstrap(
