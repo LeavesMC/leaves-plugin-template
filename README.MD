@@ -46,15 +46,17 @@
 
    将生成的 `.jar` 文件放入支持 Leaves 插件的服务器的 `plugins` 文件夹，并重启服务器。
 
-## 什么是 Mixin？
+## 常见问题
+
+**什么是 Mixin？**
 
 参考 [Fabric 教程：Mixin 介绍](https://wiki.fabricmc.net/zh_cn:tutorial:mixin_introduction)
 
-## 什么是 AccessWidener？
+**什么是 AccessWidener？**
 
 参考 [Fabric 教程：访问加宽器](https://wiki.fabricmc.net/zh_cn:tutorial:accesswideners)
 
-## 为什么 Mixin 不起作用？
+**为什么 Mixin 不起作用？**
 
 Leavesclip 默认禁用了 Mixin 功能。你需要在服务器启动脚本中加入 `-Dleavesclip.enable.mixin=true`
 
