@@ -80,6 +80,7 @@ repositories {
     maven("https://repo.leavesmc.org/snapshots/") {
         name = "leavesmc-snapshots"
     }
+    mavenLocal()
 }
 
 sourceSets {
@@ -115,6 +116,7 @@ dependencies {
             annotationPreprocessor(libs.mixinExtras)
             compileOnly(libs.mixinExtras)
             compileOnly(libs.spongeMixin)
+            compileOnly(libs.mixinCondition)
             accessWiden(compileOnly(files(getMappedServerJar()))!!)
         }
     }

@@ -6,6 +6,8 @@
   "target": "@env(PREINIT)",
   "mixins": [
     "TemplateBridgeMixin",
+    "TemplateConditionalMixin",
     "TemplateMixin"
-  ]
+  ],
+  "plugin": "com.example.plugin.mixin.TemplateMixinConfigPlugin"
 }
