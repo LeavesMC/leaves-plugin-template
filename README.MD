@@ -4,7 +4,7 @@
 
 一个帮助你快速开始 Leaves 插件开发的项目模板
 
-**:warning: 当前仅支持 [Gradle](https://gradle.org/)**
+**当前仅支持 [Gradle](https://gradle.org/)**
 
 ## 特性
 
