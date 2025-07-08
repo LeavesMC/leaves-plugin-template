@@ -9,8 +9,10 @@
 ## 特性
 
 - 在构建脚本中声明插件元数据
-- 开箱即用的 [Mixin](https://github.com/FabricMC/Mixin)，[Mixin Extras](https://github.com/LlamaLad7/MixinExtras)，[AccessWidener](https://github.com/FabricMC/access-widener)
+- 开箱即用的 [NMS](https://docs.papermc.io/paper/dev/internals/), [Mixin](https://github.com/FabricMC/Mixin)，[Mixin Extras](https://github.com/LlamaLad7/MixinExtras)，[AccessWidener](https://github.com/FabricMC/access-widener)
 - 快速启动开发服务器
+
+**此模板为全功能模板，包含了上述说到的所有功能，如果你不需要某（几）个功能，请参考：[其他分支](BRANCHES.MD)**
 
 ## 依赖
 
