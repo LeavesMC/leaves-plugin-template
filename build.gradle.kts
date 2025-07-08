@@ -10,7 +10,6 @@ plugins {
     alias(libs.plugins.shadowJar)
     alias(libs.plugins.runPaper)
     alias(libs.plugins.resourceFactory)
-    alias(libs.plugins.accessWiden)
 }
 
 // TODO: change this to your plugin group
@@ -30,16 +29,6 @@ val pluginJson = leavesPluginJson {
     // TODO: support or not is decided by you
     foliaSupported = false
     apiVersion = libs.versions.leavesApi.extractMCVersion()
-    // TODO: if your logic can work without mixin, can use `features.optional.add("mixin")`
-    features.required.add("mixin")
-    mixin.apply {
-        // TODO: replace this to your mixin package name
-        packageName = "com.example.plugin.mixin"
-        // TODO: replace this to your access widener file name
-        accessWidener = "leaves-template-plugin.accesswidener"
-        // TODO: replace this to your mixin configs name
-        mixins.add("leaves-template-plugin.mixins.json")
-    }
     // TODO: add your plugin dependencies
     // please check https://docs.papermc.io/paper/dev/getting-started/paper-plugins/#dependency-declaration
     // e.g.,
@@ -66,9 +55,6 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/") {
         name = "sonatype"
     }
-    maven("https://modmaven.dev/") {
-        name = "modmaven"
-    }
     maven("https://repo.leavesmc.org/releases/") {
         name = "leavesmc-releases"
     }
@@ -79,18 +65,12 @@ repositories {
 }
 
 sourceSets {
-    create("mixin") {
-        java.srcDir("mixin/java")
-        resources.srcDir("mixin/resources")
-    }
-
     main {
         resourceFactory {
             factories(pluginJson.resourceFactory())
         }
     }
 }
-val mixinSourceSet: SourceSet = sourceSets["mixin"]
 
 dependencies {
     apply `plugin dependencies`@{
@@ -101,26 +81,6 @@ dependencies {
         compileOnly(libs.leavesApi)
         paperweight.devBundle(libs.leavesDevBundle)
     }
-
-    apply `mixin dependencies`@{
-        compileOnly(mixinSourceSet.output)
-        mixinSourceSet.apply {
-            val compileOnly = compileOnlyConfigurationName
-            val annotationPreprocessor = annotationProcessorConfigurationName
-
-            annotationPreprocessor(libs.mixinExtras)
-            compileOnly(libs.mixinExtras)
-            compileOnly(libs.spongeMixin)
-            compileOnly(libs.mixinCondition)
-            accessWiden(compileOnly(files(getMappedServerJar()))!!)
-        }
-    }
-}
-
-accessWideners {
-    files.from(fileTree(mixinSourceSet.resources.srcDirs.first()) {
-        include("*.accesswidener")
-    })
 }
 
 tasks {
@@ -128,7 +88,6 @@ tasks {
         downloadsApiService.set(leavesDownloadApiService())
         downloadPlugins.from(runServerPlugins)
         minecraftVersion(libs.versions.leavesApi.extractMCVersion())
-        systemProperty("leavesclip.enable.mixin", true)
         systemProperty("file.encoding", Charsets.UTF_8.name())
     }
 
@@ -141,17 +100,7 @@ tasks {
         }
     }
 
-    named<JavaCompile>("compileMixinJava") {
-        dependsOn("paperweightUserdevSetup")
-        dependsOn(applyAccessWideners)
-    }
-
-    paperweightUserdevSetup {
-        finalizedBy(applyAccessWideners)
-    }
-
     shadowJar {
-        from(mixinSourceSet.output)
         archiveFileName = "${project.name}-${version}.jar"
     }
 
@@ -169,10 +118,6 @@ java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
     }
 }
-
-fun getMappedServerJar(): String = File(rootDir, ".gradle")
-    .resolve("caches/paperweight/taskCache/mappedServerJar.jar")
-    .path
 
 fun Provider<String>.extractMCVersion(): String {
     val versionString = this.get()
