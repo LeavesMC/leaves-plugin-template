@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Arrays;
 import java.util.List;
 
 // TODO: remove this. this is only for example
@@ -23,7 +24,7 @@ public final class TemplateMixin {
     private static void wrapMain(String[] args, Operation<Void> original) {
         System.err.println("This is a template mixin. boot args: " + String.join(", ", args));
         System.err.println("PLEASE REMOVE THIS MIXIN AND REPLACE IT WITH YOUR OWN!");
-        List<String> listArgs = Main.asList(args);
+        List<String> listArgs = Arrays.asList(args);
         System.err.println("Parse args with access widener: " + listArgs);
         original.call((Object) args);
     }
